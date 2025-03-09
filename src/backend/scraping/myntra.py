@@ -28,7 +28,7 @@ def search(query, driver):
         soup = bs(driver.page_source, "html.parser")
 
         # Extract all product containers
-        product_containers = soup.find_all("li", class_="product-base")[:18]
+        product_containers = soup.find_all("li", class_="product-base")[:5]
 
         if not product_containers:
             print("No results found. Possible class name change.")

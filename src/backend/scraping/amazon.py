@@ -73,7 +73,7 @@ def result(soup, name, price):
 
     try:
         # Extract product names (picking top 18 results)
-        for n in name[:18]:
+        for n in name[:5]:
             name_tag = n.find("span")
             names.append(name_tag.text.strip() if name_tag else "No Name")
 
@@ -97,7 +97,7 @@ def result(soup, name, price):
         # Extract product image links
         for div in soup.find_all(
             "div", class_="a-section aok-relative s-image-tall-aspect"
-        )[:18]:
+        )[:5]:
             img_tag = div.find("img", class_="s-image")
             image.append(
                 img_tag["src"] if img_tag and "src" in img_tag.attrs else "No Image"
