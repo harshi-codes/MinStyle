@@ -1,3 +1,5 @@
+import time
+
 from bs4 import BeautifulSoup as bs
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
@@ -6,105 +8,122 @@ from selenium.webdriver.support.ui import WebDriverWait
 
 def search(query, driver):
     """
-    searches for a given query on amazon and extract product details
+    Searches for a given query on Amazon and extracts product details.
 
-    parameters:
-        query: the search query entered by the user
-        driver: selenium webdriver instance
+    Parameters:
+        query: The search query.
+        driver: Selenium WebDriver instance.
 
-    return: list of product names, prices and links
+    Returns: Lists of product names, prices, links, images, and brands.
     """
-    url = "https://www.amazon.in/s?k=" + query
+    url = f"https://www.amazon.in/s?k={query.replace(' ', '+')}"
 
     try:
         driver.get(url)
 
-        # Wait for the first product link to appear
-        WebDriverWait(driver, 10).until(
-            EC.presence_of_element_located(
-                (
-                    By.CSS_SELECTOR,
-                    "a.a-link-normal.s-line-clamp-2.s-link-style.a-text-normal",
-                )
-            )
+        # Wait for products to load
+        WebDriverWait(driver, 15).until(
+            EC.presence_of_element_located((By.CSS_SELECTOR, "div.s-result-item"))
         )
 
-        # parse the source code of the webpage
+        # Add a small delay to ensure all elements are loaded
+        time.sleep(2)
+
+        # Parse the page source
         soup = bs(driver.page_source, "html.parser")
 
-        # finding name and price elements
-        name_elements = soup.find_all(
-            "a", class_="a-link-normal s-line-clamp-2 s-link-style a-text-normal"
-        )
+        # Get all product sections
+        product_sections = soup.find_all("div", class_="a-section a-spacing-base")
 
-        price_elements = soup.find_all("span", class_="a-price-whole")
+        if not product_sections:
+            return None, None, None, None, None
 
-        if not name_elements or not price_elements:
-            print("No results found. Possible class name change.")
-            return None, None, None  # Avoid unpacking NoneType
-
-        return result(soup, name_elements, price_elements)
+        return extract_product_data(product_sections)
 
     except Exception as e:
-        print(f"Error: {e}")
-        return None, None, None
-
-    finally:
-        # closing the browser
-        driver.quit()
+        return None, None, None, None, None
 
 
-def result(soup, name, price):
+def extract_product_data(product_sections):
     """
-    Extracts product data from the source code.
+    Extracts product data from the found product sections.
 
     Parameters:
-        soup: BeautifulSoup object
-        name: list of name elements
-        price: list of price elements
-        image: list of image elements
+        product_sections: List of product section elements
 
-    Return: list of product data
+    Returns: Lists of product names, prices, links, images, and brands.
     """
-    links = []
     names = []
     prices = []
-    image = []
+    links = []
+    images = []
+    brands = []
 
     try:
-        # Extract product names (picking top 18 results)
-        for n in name[:5]:
-            name_tag = n.find("span")
-            names.append(name_tag.text.strip() if name_tag else "No Name")
+        # Process up to 5 products
+        count = 0
+        for section in product_sections:
+            # Skip if we already have 5 products
+            if count >= 5:
+                break
 
-        # Extract product prices (Ensuring all products have a price)
-        price_dict = {
-            p.find_parent("div", class_="a-section").find(
-                "span", class_="a-price-whole"
-            ): p.text.strip()
-            for p in price
-        }
+            # Skip if this is not a product section (some sections might be ads or other content)
+            if not section.find("h2", class_="a-size-base-plus") and not section.find(
+                "h2", class_="a-size-mini"
+            ):
+                continue
 
-        for i in range(len(names)):
-            prices.append(
-                price_dict.get(price[i], "N/A")
-            )  # Default to "N/A" if price is missing
+            # Extract brand
+            brand_element = section.find("span", class_="a-size-base-plus a-color-base")
+            if not brand_element:
+                brand_element = section.find("h2", class_="a-size-mini").find("span")
 
-        # Extract product links
-        for link in soup.find_all("a", class_="a-link-normal s-no-outline")[:18]:
-            links.append("https://www.amazon.in" + link.get("href"))
+            brand = brand_element.text.strip() if brand_element else "N/A"
 
-        # Extract product image links
-        for div in soup.find_all(
-            "div", class_="a-section aok-relative s-image-tall-aspect"
-        )[:5]:
-            img_tag = div.find("img", class_="s-image")
-            image.append(
-                img_tag["src"] if img_tag and "src" in img_tag.attrs else "No Image"
-            )
+            # Extract product name
+            name_element = section.find("h2", class_="a-size-base-plus")
+            if not name_element:
+                name_element = section.find("h2", class_="a-size-mini")
 
-        return names, prices, links, image
+            if name_element and name_element.find("span"):
+                name = name_element.find("span").text.strip()
+            else:
+                name = "N/A"
+
+            # Extract price
+            price_element = section.find("span", class_="a-price-whole")
+            if not price_element:
+                price_element = section.find("span", class_="a-price")
+                if price_element:
+                    price_element = price_element.find("span", class_="a-offscreen")
+
+            price = price_element.text.strip() if price_element else "N/A"
+
+            # Extract link
+            link_element = section.find("a", class_="a-link-normal s-no-outline")
+            if not link_element:
+                link_element = section.find(
+                    "a", class_="a-link-normal s-underline-text"
+                )
+
+            link = link_element.get("href") if link_element else "N/A"
+            if link != "N/A" and not link.startswith("http"):
+                link = "https://www.amazon.in" + link
+
+            # Extract image
+            img_element = section.find("img", class_="s-image")
+            image = img_element.get("src") if img_element else "N/A"
+
+            # Only add valid products
+            if name != "N/A" and price != "N/A" and link != "N/A" and image != "N/A":
+                names.append(name)
+                prices.append(price)
+                links.append(link)
+                images.append(image)
+                brands.append(brand)
+                count += 1
+
+        return names, prices, links, images, brands
 
     except Exception as e:
-        print("Error in amazon_result:", e)
-        return None, None, None, None
+        return None, None, None, None, None

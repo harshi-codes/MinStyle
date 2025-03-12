@@ -1,12 +1,12 @@
 import os
 
 import google.generativeai as genai
+from dotenv import load_dotenv
 
 
-def get_clothing_recommendation():
-    # Configure the API with your key
-    # You need to set your API key as an environment variable or input it directly
-    api_key = input("Enter your Gemini API key: ")
+def prompt_to_query():
+    load_dotenv()
+    api_key = os.getenv("API_KEY")
     genai.configure(api_key=api_key)
 
     # Get user inputs for parameters
@@ -24,7 +24,7 @@ def get_clothing_recommendation():
     - Vibe: {vibe}
     - Gender: {gender}
     - Event: {event}
-    Give me a single, concise search term without slashes or brackets that combines all these elements. Keep it under 8 words so it works effectively on e-commerce sites.
+    Give me a single, concise search term without slashes or brackets that combines all these elements. Keep it under 10 words so it works effectively on e-commerce sites.
     """
 
     # Set up the model
@@ -40,12 +40,3 @@ def get_clothing_recommendation():
     recommendation = recommendation.replace('"', "")
 
     return recommendation
-
-
-if __name__ == "__main__":
-    try:
-        result = get_clothing_recommendation()
-        print("\nRecommended search term:")
-        print(result)
-    except Exception as e:
-        print(f"An error occurred: {e}")
