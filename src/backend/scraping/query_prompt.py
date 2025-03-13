@@ -24,7 +24,7 @@ def prompt_to_query():
     - Vibe: {vibe}
     - Gender: {gender}
     - Event: {event}
-    Give me a single, concise search term without slashes or brackets that combines all these elements. Keep it under 10 words so it works effectively on e-commerce sites.
+    Give me a single, concise search term without slashes or brackets that combines all these elements. Keep it under 10 words so it works effectively on e-commerce sites. Dont just put those parameters together s ecoomerce sites struggle with a long prompt so try to make it short and concise yet filling all the parameters.
     """
 
     # Set up the model
