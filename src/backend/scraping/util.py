@@ -12,55 +12,72 @@ from selenium.webdriver.firefox.options import Options as FirefoxOptions
 def openBrowser():
     """
     Initializes and returns a Selenium WebDriver instance based on the operating system.
-
-    Supported browsers:
-    - Windows: Microsoft Edge (headless mode)
-    - macOS/Linux: Uses Chrome or Firefox if available; otherwise, falls back to Safari.
-
-    Returns:
-        webdriver instance: An initialized WebDriver object.
-
-    Raises:
-        Exception: If no supported browser is found.
     """
     os_name = platform.system()
 
+    # Common options for all browsers to improve performance
+    common_arguments = [
+        "--headless",
+        "--disable-gpu",
+        "--disable-dev-shm-usage",  # Overcome limited resource problems
+        "--disable-extensions",  # Disable extensions for faster loading
+        "--disable-infobars",  # Disable infobars for faster loading
+        "--no-sandbox",  # Bypass OS security model
+        "--disable-browser-side-navigation",  # Avoid issues with navigation
+        "--disable-features=TranslateUI",  # Disable translation features
+        "--disable-notifications",  # Disable notifications
+        "--blink-settings=imagesEnabled=false",  # Disable images for faster loading
+    ]
+
+    user_agent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
+
     if os_name == "Windows":
         options = EdgeOptions()
-        options.add_argument("--headless")  # Run in headless mode
-        options.add_argument("--disable-gpu")
-        options.add_argument(
-            "user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
-        )
+        for arg in common_arguments:
+            options.add_argument(arg)
+        options.add_argument(f"user-agent={user_agent}")
         return webdriver.Edge(options=options)
 
     elif os_name in ["Darwin", "Linux"]:  # macOS or Linux
         if shutil.which("google-chrome") or shutil.which("chrome"):
             options = ChromeOptions()
-            options.add_argument("--headless")
-            options.add_argument(
-                "user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
-            )
+            for arg in common_arguments:
+                options.add_argument(arg)
+            options.add_argument(f"user-agent={user_agent}")
+            # Add Chrome-specific options
+            options.page_load_strategy = "eager"  # Wait only for essential content
             return webdriver.Chrome(options=options)
 
         elif shutil.which("firefox"):
             options = FirefoxOptions()
-            options.add_argument("--headless")
-            options.add_argument(
-                "user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
-            )
+            for arg in common_arguments:
+                options.add_argument(arg)
+            options.add_argument(f"user-agent={user_agent}")
+            # Add Firefox-specific options
+            options.set_preference("network.http.pipelining", True)
+            options.set_preference("network.http.proxy.pipelining", True)
+            options.set_preference("network.http.pipelining.maxrequests", 8)
+            options.page_load_strategy = "eager"  # Wait only for essential content
             return webdriver.Firefox(options=options)
 
-        elif os_name == "Darwin":  # macOS Safari (no headless mode)
-            driver = webdriver.Safari()
-            driver.execute_script(
-                "navigator.__defineGetter__('userAgent', () => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36')"
-            )
-            return driver
-
+        elif os_name == "Darwin":  # macOS
+            try:
+                options = FirefoxOptions()
+                for arg in common_arguments:
+                    options.add_argument(arg)
+                options.add_argument(f"user-agent={user_agent}")
+                options.page_load_strategy = "eager"
+                return webdriver.Firefox(options=options)
+            except Exception as e:
+                print(f"Firefox browser failed to initialize: {e}")
+                print("Falling back to Safari...")
+                driver = webdriver.Safari()
+                driver.execute_script(
+                    f"navigator.__defineGetter__('userAgent', () => '{user_agent}')"
+                )
+                return driver
         else:
             raise Exception("No supported browser found. Install Chrome or Firefox.")
-
     else:
         raise Exception("Unsupported OS. Only Windows, macOS, and Linux are supported.")
 
@@ -96,7 +113,6 @@ def storeInJson(site, **values):
 
             # If the existing data is a list, convert it to a dictionary
             if isinstance(data, list):
-
                 data = {}  # Reset to an empty dictionary
 
         except (FileNotFoundError, json.JSONDecodeError):
@@ -109,10 +125,12 @@ def storeInJson(site, **values):
         with open(filename, "w", encoding="utf-8") as file:
             json.dump(data, file, indent=4, ensure_ascii=False)
 
-        print(f"Data stored successfully in {filename}!")
+        print(
+            f"Data stored successfully in {filename}"
+        )  # Just print the filename, not the content
 
     except Exception as e:
-        print(f"Error: {e}")
+        print(f"Error saving data to {filename}: {e}")
 
 
 def scrape(module_name, query, driver):

@@ -1,32 +1,62 @@
+import concurrent.futures
+import threading
 import time
 
 import query_prompt
 import util
 
-# Get user input
-query = query_prompt.prompt_to_query()
 
-driver = util.openBrowser()
+def scrape_site(name, query):
+    start_time = time.time()
+    driver = util.openBrowser()
+    try:
+        result = util.scrape(name, query, driver)
+        print(f"✅ {name} completed in {elapsed:.2f}s")
+        return name, result
+    except Exception as e:
+        print(f"❌ Error in {name} scraper: {e}")
+        return name, None
+    finally:
+        driver.quit()
 
-# TODO: Add multithreading for scrapers
-# TODO: MAYBE and a big MAYBE add a whole ass thrift store
 
-a = util.scrape("amazon", query, driver)
-time.sleep(2)
-b = util.scrape("myntra", query, driver)
-driver.quit()
+def main():
+    # Get user input
+    query = query_prompt.prompt_to_query()
 
-time.sleep(2)
-driver = util.openBrowser()
-c = util.scrape("ajio", query, driver)
-driver.quit()
+    results = {}
+    sites = ["amazon", "myntra", "ajio", "rare_rabbit", "westside"]
 
-time.sleep(2)
-driver = util.openBrowser()
-d = util.scrape("rare_rabbit", query, driver)
-driver.quit()
+    print(f"Starting scraping for query: '{query}'")
+    start_time = time.time()
 
-time.sleep(2)
-driver = util.openBrowser()
-e = util.scrape("westside", query, driver)
-driver.quit()
+    with concurrent.futures.ThreadPoolExecutor(max_workers=len(sites)) as executor:
+        # Start all scrapers at once
+        future_to_site = {
+            executor.submit(scrape_site, site, query): site for site in sites
+        }
+
+        # Process results as they complete
+        for future in concurrent.futures.as_completed(future_to_site):
+            site_name, result = future.result()
+            if result:
+                results[site_name] = result
+
+    # Calculate total time
+    total_time = time.time() - start_time
+
+    # Print a summary of results
+    print(f"\nScraping complete in {total_time:.2f} seconds! Summary:")
+    for site, result in results.items():
+        if result:
+            product_count = len(result)
+            print(f"✅ {site}: {product_count} products found")
+        else:
+            print(f"❌ {site}: No products found")
+
+    print(f"\nResults saved to cache directory.")
+    return results
+
+
+if __name__ == "__main__":
+    main()
