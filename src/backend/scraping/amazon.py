@@ -20,7 +20,7 @@ def search(query, driver):
 
     try:
         driver.get(url)
-
+        time.sleep(1)
         # Wait for products to load
         WebDriverWait(driver, 15).until(
             EC.presence_of_element_located((By.CSS_SELECTOR, "div.s-result-item"))

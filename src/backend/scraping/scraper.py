@@ -5,12 +5,17 @@ import time
 import query_prompt
 import util
 
+# TODO: If a site doesnt provide any results, program will ignore that json file and show the results of other.
+# TODO: Add a failsafe incase all the sites fails to show results.
+# TODO: Make a proper log file instead of printing it on terminal.
+
 
 def scrape_site(name, query):
     start_time = time.time()
     driver = util.openBrowser()
     try:
         result = util.scrape(name, query, driver)
+        elapsed = time.time() - start_time
         print(f"✅ {name} completed in {elapsed:.2f}s")
         return name, result
     except Exception as e:

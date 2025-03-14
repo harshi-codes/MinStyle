@@ -1,3 +1,5 @@
+import time
+
 from bs4 import BeautifulSoup as bs
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
@@ -20,7 +22,7 @@ def search(query, driver):
 
     try:
         driver.get(url)
-
+        time.sleep(1)
         # Wait for products to load
         WebDriverWait(driver, 10).until(
             EC.presence_of_element_located(

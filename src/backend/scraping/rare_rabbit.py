@@ -15,7 +15,7 @@ def search(query, driver):
 
     try:
         driver.get(url)
-
+        time.sleep(1)
         # Wait for product containers to load
         WebDriverWait(driver, 15).until(
             EC.presence_of_element_located((By.CSS_SELECTOR, ".product-detail"))

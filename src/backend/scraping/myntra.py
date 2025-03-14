@@ -1,3 +1,5 @@
+import time
+
 from bs4 import BeautifulSoup as bs
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
@@ -18,8 +20,10 @@ def search(query, driver):
 
     try:
         driver.get(url)
+        time.sleep(1)
 
         # Wait for products to load
+        driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
         WebDriverWait(driver, 10).until(
             EC.presence_of_element_located((By.CSS_SELECTOR, "li.product-base"))
         )
