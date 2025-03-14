@@ -3,3 +3,4 @@ __pycache__/
 .DS_Store
 .env
 src/backend/scraping/.env
+log.txt

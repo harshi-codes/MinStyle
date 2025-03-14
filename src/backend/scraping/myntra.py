@@ -1,5 +1,5 @@
 import time
-
+import util
 from bs4 import BeautifulSoup as bs
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
@@ -35,13 +35,13 @@ def search(query, driver):
         product_containers = soup.find_all("li", class_="product-base")[:5]
 
         if not product_containers:
-            print("No results found. Possible class name change.")
+            util.log("No results found. Possible class name change.")
             return None, None, None, None, None  # Returning 5 None values
 
         return extract_product_data(product_containers)
 
     except Exception as e:
-        print(f"Error: {e}")
+        util.log(f"Error: {e}")
         return None, None, None, None, None
 
     finally:
@@ -91,5 +91,5 @@ def extract_product_data(product_containers):
         return names, prices, links, images, brands
 
     except Exception as e:
-        print("Error in extract_product_data:", e)
+        util.log("Error in extract_product_data:", e)
         return None, None, None, None, None  # Return 5 None values in case of error

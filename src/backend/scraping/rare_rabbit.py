@@ -1,5 +1,5 @@
 import time
-
+import util
 from bs4 import BeautifulSoup as bs
 from selenium import webdriver
 from selenium.webdriver.common.by import By
@@ -40,13 +40,13 @@ def search(query, driver):
         product_containers = soup.find_all("div", class_="product-detail")[:5]
 
         if not product_containers:
-            print("No results found. Possible class name change.")
+            util.log("No results found. Possible class name change.")
             return None, None, None, None, None
 
         return extract_product_data(product_containers)
 
     except Exception as e:
-        print(f"Error in search function: {e}")
+        util.log(f"Error in search function: {e}")
         return None, None, None, None, None
 
 
@@ -162,11 +162,11 @@ def extract_product_data(product_containers):
                 else:
                     images.append("No Image")
             except Exception as e:
-                print(f"Error extracting image: {e}")
+                util.log(f"Error extracting image: {e}")
                 images.append("No Image")
 
         return names, prices, links, images, brands
 
     except Exception as e:
-        print(f"Error in extract_product_data: {e}")
+        util.log(f"Error in extract_product_data: {e}")
         return None, None, None, None, None

@@ -16,10 +16,10 @@ def scrape_site(name, query):
     try:
         result = util.scrape(name, query, driver)
         elapsed = time.time() - start_time
-        print(f"✅ {name} completed in {elapsed:.2f}s")
+        util.log(f"✅ {name} completed in {elapsed:.2f}s")
         return name, result
     except Exception as e:
-        print(f"❌ Error in {name} scraper: {e}")
+        util.log(f"❌ Error in {name} scraper: {e}")
         return name, None
     finally:
         driver.quit()
@@ -32,7 +32,7 @@ def main():
     results = {}
     sites = ["amazon", "myntra", "ajio", "rare_rabbit", "westside"]
 
-    print(f"Starting scraping for query: '{query}'")
+    util.log(f"Starting scraping for query: '{query}'")
     start_time = time.time()
 
     with concurrent.futures.ThreadPoolExecutor(max_workers=len(sites)) as executor:
@@ -50,16 +50,16 @@ def main():
     # Calculate total time
     total_time = time.time() - start_time
 
-    # Print a summary of results
-    print(f"\nScraping complete in {total_time:.2f} seconds! Summary:")
+    # Log a summary of results
+    util.log(f"\nScraping complete in {total_time:.2f} seconds! Summary:")
     for site, result in results.items():
         if result:
             product_count = len(result)
-            print(f"✅ {site}: {product_count} products found")
+            util.log(f"✅ {site}: {product_count} products found")
         else:
-            print(f"❌ {site}: No products found")
+            util.log(f"❌ {site}: No products found")
 
-    print(f"\nResults saved to cache directory.")
+    util.log(f"\nResults saved to cache directory.")
     return results
 
 

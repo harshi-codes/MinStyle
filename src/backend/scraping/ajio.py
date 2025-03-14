@@ -1,5 +1,5 @@
 import time
-
+import util
 from bs4 import BeautifulSoup as bs
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
@@ -44,13 +44,13 @@ def search(query, driver):
         )[:5]
 
         if not product_containers:
-            print("No results found. Possible class name change.")
+            util.log("No results found. Possible class name change.")
             return None, None, None, None, None  # Return 5 None values
 
         return extract_product_data(product_containers)
 
     except Exception as e:
-        print(f"Error: {e}")
+        util.log(f"Error: {e}")
         return None, None, None, None, None
 
     finally:
@@ -133,5 +133,5 @@ def extract_product_data(product_containers):
         return names, prices, links, images, brands
 
     except Exception as e:
-        print("Error in extract_ajio_product_data:", e)
+        util.log("Error in extract_ajio_product_data:", e)
         return None, None, None, None, None

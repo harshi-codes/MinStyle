@@ -2,6 +2,7 @@ import json
 import os
 import platform
 import shutil
+import time
 
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options as ChromeOptions
@@ -69,8 +70,8 @@ def openBrowser():
                 options.page_load_strategy = "eager"
                 return webdriver.Firefox(options=options)
             except Exception as e:
-                print(f"Firefox browser failed to initialize: {e}")
-                print("Falling back to Safari...")
+                log(f"Firefox browser failed to initialize: {e}")
+                log("Falling back to Safari...")
                 driver = webdriver.Safari()
                 driver.execute_script(
                     f"navigator.__defineGetter__('userAgent', () => '{user_agent}')"
@@ -125,12 +126,12 @@ def storeInJson(site, **values):
         with open(filename, "w", encoding="utf-8") as file:
             json.dump(data, file, indent=4, ensure_ascii=False)
 
-        print(
+        log(
             f"Data stored successfully in {filename}"
-        )  # Just print the filename, not the content
+        )  # Just log the filename, not the content
 
     except Exception as e:
-        print(f"Error saving data to {filename}: {e}")
+        log(f"Error saving data to {filename}: {e}")
 
 
 def scrape(module_name, query, driver):
@@ -174,12 +175,22 @@ def scrape(module_name, query, driver):
 
             return product_data
         else:
-            print(f"No valid product data found from {module_name}")
+            log(f"No valid product data found from {module_name}")
             return None
 
     except ImportError:
-        print(f"Module '{module_name}' not found")
+        log(f"Module '{module_name}' not found")
         return None
     except Exception as e:
-        print(f"Error searching with {module_name}: {e}")
+        log(f"Error searching with {module_name}: {e}")
         return None
+
+
+# Logging function
+def log(message):
+    root_dir = os.path.join(
+        os.path.dirname(os.path.abspath(__file__)), "..", "..", ".."
+    )
+    filename = os.path.join(root_dir, "log.txt")
+    with open(filename, "a") as log_file:
+        log_file.write(f"{time.strftime('%Y-%m-%d %H:%M:%S')} - {message}\n")
