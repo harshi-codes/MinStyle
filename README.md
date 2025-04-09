@@ -15,7 +15,7 @@ MinStyle is a web-based tool designed to simplify fashion shopping by fetching r
 
 ## 🛠️ Tech Stack
 
-- **Frontend:** (To be determined)
+- **Frontend:** :)
 - **Backend:** Python (Flask)
 - **Web Scraping:** Selenium, BeautifulSoup
 - **Authentication & Storage:** Firebase
