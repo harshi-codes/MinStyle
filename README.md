@@ -12,13 +12,14 @@ MinStyle is a web-based tool designed to simplify fashion shopping by fetching r
 - **Advanced Filtering:** Refine results by price, size, and more.
 - **Thrift Store Integration:** Encourages sustainable fashion choices.
 - **Fashion Blog:** Team-curated articles on thrift shopping and sustainability.
+- ** Brand Review:** Promoting sustainable and Indie brands based on sustainability efforts, ethical practices and quality.
 
 ## 🛠️ Tech Stack
 
-- **Frontend:** React (TypeScript)
-Vite for lightning-fast builds
-Tailwind CSS for utility-first styling
-ShadCN/UI for elegant UI components
+- **Frontend:** React (TypeScript),
+Vite for lightning-fast builds,
+Tailwind CSS for utility-first styling,
+ShadCN/UI for elegant UI components.
 - **Backend:** Python (Flask)
 - **Web Scraping:** Selenium, BeautifulSoup
 - **Authentication & Storage:** Firebase
