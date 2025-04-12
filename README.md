@@ -12,7 +12,7 @@ MinStyle is a web-based tool designed to simplify fashion shopping by fetching r
 - **Advanced Filtering:** Refine results by price, size, and more.
 - **Thrift Store Integration:** Encourages sustainable fashion choices.
 - **Fashion Blog:** Team-curated articles on thrift shopping and sustainability.
-- ** Brand Review:** Promoting sustainable and Indie brands based on sustainability efforts, ethical practices and quality.
+- **Brand Review:** Promoting sustainable and Indie brands based on sustainability efforts, ethical practices and quality.
 
 ## 🛠️ Tech Stack
 
