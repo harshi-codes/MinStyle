@@ -73,7 +73,7 @@ const teamMembers = [
     name: 'Saish',
     role: '',
     bio: '',
-    image: '',
+    image: '/team/saish.jpg',
     social: {
       github: '#',
       linkedin: '#',
