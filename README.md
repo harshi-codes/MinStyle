@@ -23,6 +23,7 @@ ShadCN/UI for elegant UI components.
 - **Backend:** Python (Flask)
 - **Web Scraping:** Selenium, BeautifulSoup
 - **Authentication & Storage:** Firebase
+- **Chatbot**: Built and deployed on Chatbase.
 
 ## ⚙️ How It Works
 
