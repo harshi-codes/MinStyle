@@ -4,19 +4,11 @@ import google.generativeai as genai
 from dotenv import load_dotenv
 
 
-def prompt_to_query():
+def generate_from_args(style, color, vibe, gender, event):
     load_dotenv()
     api_key = os.getenv("API_KEY")
     genai.configure(api_key=api_key)
 
-    # Get user inputs for parameters
-    style = input("Enter style (e.g., casual, formal, vintage): ")
-    color = input("Enter color: ")
-    vibe = input("Enter vibe (e.g., elegant, sporty, bohemian): ")
-    gender = input("Enter gender: ")
-    event = input("Enter event (e.g., wedding, beach party, work): ")
-
-    # Create the prompt
     prompt = f"""
     I need a specific clothing search recommendation. Based on these parameters:
     - Style: {style}
@@ -24,19 +16,25 @@ def prompt_to_query():
     - Vibe: {vibe}
     - Gender: {gender}
     - Event: {event}
-    Give me a single, concise search term without slashes or brackets that combines all these elements. Keep it under 7 words so it works effectively on e-commerce sites. Dont just put those parameters together as e-commerce sites struggle with a long prompt so try to make it short and concise yet filling all the parameters. I beg you please follow the instruction clearly and give a short prompt.
+    Give me a single, concise search term without slashes or brackets that combines all these elements. 
+    Keep it under 7 words so it works effectively on e-commerce sites.
     """
 
-    # Set up the model
-    model = genai.GenerativeModel("gemini-2.0-flash")
+    try:
+        model = genai.GenerativeModel("gemini-2.0-flash")
+        response = model.generate_content(prompt)
+        return response.text.strip().replace('"', "")
+    except Exception as e:
+        print(f"Error generating query: {e}")
+        return None
 
-    # Get the response
-    response = model.generate_content(prompt)
 
-    # Extract and clean the response
-    recommendation = response.text.strip()
+# Original function remains for direct CLI use
+def prompt_to_query():
+    style = input("Enter style (e.g., casual, formal, vintage): ")
+    color = input("Enter color: ")
+    vibe = input("Enter vibe (e.g., elegant, sporty, bohemian): ")
+    gender = input("Enter gender: ")
+    event = input("Enter event (e.g., wedding, beach party, work): ")
 
-    # Remove double quotes if present
-    recommendation = recommendation.replace('"', "")
-
-    return recommendation
+    return generate_from_args(style, color, vibe, gender, event)
