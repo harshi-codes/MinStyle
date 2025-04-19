@@ -75,65 +75,28 @@ def extract_product_data(product_containers):
             # Get product link
             link_tag = product.find("a", class_="wizzy-result-product-item")
             product_link = (
-                link_tag["href"] if link_tag and link_tag.get("href") else "No Link"
+                base_url + link_tag["href"] if link_tag and link_tag.get("href") else "No Link"
             )
             links.append(product_link)
 
-            # Extract image using the parent container logic
-            try:
-                parent_container = product.parent
-
-                if parent_container:
-                    product_main_inner = parent_container.find(
-                        "div", class_="product-item-inner"
-                    )
-
-                    if product_main_inner:
-                        image_link = product_main_inner.find("a", class_="product-link")
-
-                        if image_link:
-                            img_tag = image_link.find("img")
-
-                            if img_tag:
-                                # Check data-src, srcset, and src attributes for image
-                                data_src = img_tag.get("data-src")
-                                if data_src:
-                                    images.append(data_src)
-                                    continue
-
-                                srcset = img_tag.get("srcset")
-                                if srcset:
-                                    highest_res = srcset.split(",")[-1].split()[0]
-                                    images.append(highest_res)
-                                    continue
-
-                                src = img_tag.get("src")
-                                if src:
-                                    images.append(src)
-                                    continue
-
-                                images.append("No Image")
-                            else:
-                                images.append("No Image")
-                        else:
-                            img_tag = product_main_inner.find("img")
-                            if img_tag:
-                                src = img_tag.get("data-src") or img_tag.get("src")
-                                images.append(src if src else "No Image")
-                            else:
-                                images.append("No Image")
-                    else:
-                        img_tag = parent_container.find("img")
-                        if img_tag:
-                            src = img_tag.get("data-src") or img_tag.get("src")
-                            images.append(src if src else "No Image")
-                        else:
-                            images.append("No Image")
-                else:
-                    images.append("No Image")
-            except Exception as e:
-                util.log(f"Error extracting image: {e}")
-                images.append("No Image")
+            # Improved image extraction - only look within current product container
+            img_tag = product.find("img")
+            image_url = "No Image"
+            
+            if img_tag:
+                # Check data-src first (common for lazy-loaded images)
+                if img_tag.get("data-src"):
+                    image_url = img_tag["data-src"]
+                # Then check srcset
+                elif img_tag.get("srcset"):
+                    srcset = img_tag["srcset"]
+                    # Get the highest resolution image from srcset
+                    image_url = srcset.split(",")[-1].split()[0]
+                # Finally check regular src
+                elif img_tag.get("src"):
+                    image_url = img_tag["src"]
+            
+            images.append(image_url)
 
         return names, prices, links, images, brands
 

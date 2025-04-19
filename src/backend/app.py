@@ -304,7 +304,7 @@ def handle_search():
 
 
 @app.route("/api/products", methods=["GET"])
-@firebase_authenticated  # Keep this if you want it authenticated
+@firebase_authenticated  
 def get_products():
     global scraping_in_progress, last_scrape_start_time
 

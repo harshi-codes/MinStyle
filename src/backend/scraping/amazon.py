@@ -90,14 +90,22 @@ def extract_product_data(product_sections):
             else:
                 name = "N/A"
 
-            # Extract price
+            # Extract price (updated to include ₹ symbol)
             price_element = section.find("span", class_="a-price-whole")
-            if not price_element:
-                price_element = section.find("span", class_="a-price")
+            if price_element:
+                # Get the price text and add ₹ if not already present
+                price_text = price_element.text.strip()
+                if price_text and not price_text.startswith("₹"):
+                    price_text = f"₹{price_text}"
+                price = price_text
+            else:
+                # Check for alternative price element (a-offscreen)
+                price_element = section.find("span", class_="a-offscreen")
                 if price_element:
-                    price_element = price_element.find("span", class_="a-offscreen")
-
-            price = price_element.text.strip() if price_element else "N/A"
+                    price_text = price_element.text.strip()
+                    price = price_text if price_text else "₹N/A"
+                else:
+                    price = "₹N/A"
 
             # Extract link
             link_element = section.find("a", class_="a-link-normal s-no-outline")
@@ -115,7 +123,7 @@ def extract_product_data(product_sections):
             image = img_element.get("src") if img_element else "N/A"
 
             # Only add valid products
-            if name != "N/A" and price != "N/A" and link != "N/A" and image != "N/A":
+            if name != "N/A" and price != "₹N/A" and link != "N/A" and image != "N/A":
                 names.append(name)
                 prices.append(price)
                 links.append(link)

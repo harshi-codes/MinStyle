@@ -30,6 +30,7 @@ def merge_and_randomize_products(
             file_path = cache_dir / filename
             # Extract website name from filename (without extension)
             website = os.path.splitext(filename)[0]
+            website = website.replace('_', ' ').title()
 
             with open(file_path, "r", encoding="utf-8") as f:
                 data = json.load(f)
@@ -39,7 +40,7 @@ def merge_and_randomize_products(
                     if (
                         key.startswith("P")
                         and key[1:].isdigit()
-                        and 1 <= int(key[1:]) <= 5
+                        and 1 <= int(key[1:]) <= 7
                     ):
                         product = data[key]
                         product["website"] = website

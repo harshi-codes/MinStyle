@@ -12,66 +12,68 @@ const teamMembers = [
   {
     id: 1,
     name: 'Harshita Singh',
-    role: 'Founder',
+    role: 'Founder and Tech Lead',
 
     image: '/team/harshita.jpg',
     social: {
-      linkedin: '#',
-      instagram: '#',
+      linkedin: 'https://www.linkedin.com/in/harshita-singh-a37b34197/',
+      instagram: 'https://www.instagram.com/harshi0.0?utm_source=ig_web_button_share_sheet&igsh=ZDNlZDc0MzIxNw==',
       email: 'harshita@minstyle.com',
     }
   },
   {
     id: 5,
     name: 'Rudra Pratap Singh',
-    role: '',
+    role: 'Content Analyst',
     bio: '',
     image: '/team/rudra.jpg',
     social: {
-      linkedin: '#',
+      linkedin: 'https://www.linkedin.com/in/rudracodes/',
+      instagram: 'https://www.instagram.com/rudeicious/?utm_source=ig_web_button_share_sheet',
       email: 'rudra@minstyle.com',
     }
   },
   {
     id: 4,
     name: 'Maanya Jajodia',
-    role: '',
+    role: 'Content Analyst',
     bio: '',
     image: '/team/maanya.jpg',
     social: {
-      linkedin: '#',
-      instagram: '#',
+      linkedin: 'https://www.linkedin.com/in/maanya-jajodia-3905a7336?utm_source=share&utm_campaign=share_via&utm_content=profile&utm_medium=android_app',
+      instagram: 'https://www.instagram.com/maanyaa1411?utm_source=ig_web_button_share_sheet&igsh=ZDNlZDc0MzIxNw==',
       email: 'maanya@minstyle.com',
     }
   },
   {
     id: 2,
     name: 'Shobhit Dutta',
-    role: '',
+    role: 'Backend Developer',
     bio: '',
     image: '/team/shobhit.jpg',
     social: {
-      linkedin: '#',
-      instagram: '#',
+      linkedin: 'www.linkedin.com/in/shobhit-dutta',
+      instagram: 'https://www.instagram.com/_slyeet/',
+      github: 'https://www.github.com/slyeeet03',
       email: 'shobhit@minstyle.com',
     }
   },
   {
     id: 3,
     name: 'Dhruv Sharda',
-    role: '',
+    role: 'Business Development and Research Analyst',
     bio: '',
     image: '/team/dhruv.jpg',
     social: {
       github: '#',
-      linkedin: '#',
+      linkedin: 'https://www.linkedin.com/in/dhruv-sharda-8a6231239/',
       email: 'dhruv@minstyle.com',
     }
   },
   {
     id: 6,
     name: 'Saish',
-    role: '',
+    role: 'Graphic Design',
     bio: '',
     image: '/team/saish.jpg',
     social: {

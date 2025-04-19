@@ -99,30 +99,33 @@ def extract_product_data(product_containers):
             # Extract the FINAL price (sale price if available)
             sale_price_div = product.find("div", class_="_305pl _243Gp")
             if sale_price_div:
-                sale_price_span = sale_price_div.find(
-                    "div"
-                )  # Find inner div containing sale price
+                sale_price_span = sale_price_div.find("div")  # Find inner div containing sale price
                 if sale_price_span:
-                    sale_price_text = "".join(
-                        c for c in sale_price_span.text if c.isdigit()
-                    )
+                    # Keep the original price text (with ₹ symbol if present)
+                    sale_price_text = sale_price_span.text.strip()
                     if sale_price_text:
+                        # If ₹ is not already present, add it
+                        if not sale_price_text.startswith("₹"):
+                            sale_price_text = f"₹{sale_price_text}"
                         prices.append(sale_price_text)
                     else:
-                        prices.append("N/A")
+                        prices.append("₹N/A")
                 else:
-                    prices.append("N/A")
+                    prices.append("₹N/A")
             else:
                 # No sale price, use the regular price
                 price_tag = product.find("span", class_="price")
                 if price_tag:
-                    price_text = "".join(c for c in price_tag.text if c.isdigit())
+                    price_text = price_tag.text.strip()
                     if price_text:
+                        # If ₹ is not already present, add it
+                        if not price_text.startswith("₹"):
+                            price_text = f"₹{price_text}"
                         prices.append(price_text)
                     else:
-                        prices.append("N/A")
+                        prices.append("₹N/A")
                 else:
-                    prices.append("N/A")
+                    prices.append("₹N/A")
 
             # Extract product image
             img_tag = product.find("img")
