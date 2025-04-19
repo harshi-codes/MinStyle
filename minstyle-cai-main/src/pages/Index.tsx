@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import Navbar from "@/components/Navbar";
 import Hero from "@/components/Hero";
 import ProductRecommender from "@/components/ProductRecommender";
@@ -15,6 +15,8 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useToast } from "@/components/ui/use-toast";
+import { useAuth } from "@/providers/AuthProvider";
+import { auth } from "@/services/auth";
 
 const Index = () => {
   const [showChatbot, setShowChatbot] = useState(false);
@@ -27,6 +29,8 @@ const Index = () => {
   });
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
+  const { user } = useAuth();
+  const navigate = useNavigate();
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -45,6 +49,18 @@ const Index = () => {
 
   const handleShopNow = async (e: React.MouseEvent) => {
     e.preventDefault();
+
+    // Check if user is authenticated
+    if (!user) {
+      toast({
+        title: "Authentication Required",
+        description: "Please log in to search for products",
+        variant: "destructive",
+      });
+      // Redirect to login page
+      navigate("/login");
+      return;
+    }
 
     // Validate all fields are filled
     if (
@@ -65,16 +81,22 @@ const Index = () => {
     setIsLoading(true);
 
     try {
+      // Get the current user's ID token for authentication
+      const token = await user.getIdToken();
+
       const response = await fetch("http://localhost:5002/api/search", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`, // Properly formatted Bearer token
         },
         body: JSON.stringify(searchParams),
       });
 
+      const responseData = await response.json();
+
       if (!response.ok) {
-        throw new Error("Failed to start search");
+        throw new Error(responseData.error || "Failed to start search");
       }
 
       toast({
@@ -84,13 +106,16 @@ const Index = () => {
 
       // Redirect to products page after a short delay
       setTimeout(() => {
-        window.location.href = "/products";
+        navigate("/products");
       }, 1500);
     } catch (error) {
       console.error("Search error:", error);
       toast({
         title: "Search Failed",
-        description: "Couldn't start the search. Please try again.",
+        description:
+          error instanceof Error
+            ? error.message
+            : "Couldn't start the search. Please try again.",
         variant: "destructive",
       });
     } finally {

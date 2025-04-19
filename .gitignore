@@ -5,3 +5,4 @@ __pycache__/
 .env
 src/backend/scraping/.env
 node_modules/
+src/backend/config/firebase_service_account.json

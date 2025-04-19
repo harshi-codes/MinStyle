@@ -19,6 +19,7 @@ output_file = "products.json"
 
 
 def scrape_site(name, query):
+    print("Starting the scraper")
     start_time = time.time()
     driver = util.openBrowser()
     try:
@@ -30,6 +31,7 @@ def scrape_site(name, query):
         util.log(f"❌ Error in {name} scraper: {e}")
         return name, None
     finally:
+
         driver.quit()
 
 

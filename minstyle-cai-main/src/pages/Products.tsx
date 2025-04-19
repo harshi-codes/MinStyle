@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from "react";
+import { useAuth } from "@/providers/AuthProvider"; // Make sure this import path is correct
+import { auth } from "@/services/auth"; // Import your Firebase auth instanceimport {
 import {
-  Filter,
+Filter,
   ShoppingBag,
   Heart,
   Search,
@@ -27,6 +29,7 @@ interface Product {
 }
 
 const Products = () => {
+  const { user } = useAuth();
   // State for products and loading state
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
@@ -65,9 +68,24 @@ const Products = () => {
         setLoading(true);
         setScraping(true);
 
+        // Check if user is authenticated
+        if (!user) {
+          setError("Authentication required");
+          setLoading(false);
+          setScraping(false);
+          return;
+        }
+
+        // Get the user's ID token
+        const token = await user.getIdToken();
+
         const pollInterval = setInterval(async () => {
           try {
-            const response = await fetch("http://localhost:5002/api/products");
+            const response = await fetch("http://localhost:5002/api/products", {
+              headers: {
+                Authorization: `Bearer ${token}`,
+              },
+            });
 
             if (!response.ok) {
               throw new Error(`HTTP error! status: ${response.status}`);
