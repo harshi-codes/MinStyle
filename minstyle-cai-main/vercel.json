@@ -2,7 +2,7 @@
   "version": 2,
   "builds": [
     {
-      "src": "vite.config.ts",
+      "src": "package.json",  // Changed from vite.config.ts
       "use": "@vercel/static-build",
       "config": {
         "distDir": "dist"
@@ -16,7 +16,7 @@
     },
     {
       "src": "/(.*)",
-      "dest": "/$1",
+      "dest": "/dist/$1",  // Added /dist/ to match output directory
       "headers": {
         "Cache-Control": "no-cache"
       }
