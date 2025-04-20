@@ -5,14 +5,22 @@ services:
     env: python
     buildCommand: |
       python -m pip install --upgrade pip
-      pip install -r requirements.txt --use-deprecated=legacy-resolver
+      pip install -r src/backend/requirements.txt
       pip install gunicorn
-    startCommand: gunicorn --bind :$PORT app:app
+    startCommand: cd src/backend && gunicorn --bind :$PORT app:app
     envVars:
       - key: PORT
         value: 10000
+      - key: FIREBASE_TYPE
+        sync: false
+      - key: FIREBASE_PROJECT_ID
+        sync: false
+      - key: FIREBASE_PRIVATE_KEY_ID
+        sync: false
       - key: FIREBASE_PRIVATE_KEY
-        sync: false  # Secret
+        sync: false
       - key: FIREBASE_CLIENT_EMAIL
-        value: your-service-account@project.iam.gserviceaccount.com
+        sync: false
+      - key: FIREBASE_CLIENT_CERT_URL
+        sync: false
     healthCheckPath: /health
