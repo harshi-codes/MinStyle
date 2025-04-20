@@ -6,7 +6,7 @@ from dotenv import load_dotenv
 
 def generate_from_args(style, color, vibe, gender, event):
     load_dotenv()
-    api_key = os.getenv("API_KEY")
+    api_key = os.getenv("GEMINI_API_KEY")
     genai.configure(api_key=api_key)
 
     prompt = f"""

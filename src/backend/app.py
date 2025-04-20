@@ -7,13 +7,28 @@ import time
 from functools import wraps
 from pathlib import Path
 
+
 import firebase_admin
 from firebase_admin import auth, credentials
 from flask import Flask, jsonify, request
 from flask_cors import CORS
 
+
 app = Flask(__name__)
-CORS(app)  # Enable CORS for all routes
+# Update CORS for Vercel deployment
+CORS(app, resources={
+    r"/api/*": {
+        "origins": [
+            "https://your-vercel-app.vercel.app",
+            "http://localhost:3000"
+        ]
+    }
+})
+
+# Add health check endpoint
+@app.route('/health')
+def health_check():
+    return jsonify({"status": "healthy"}), 200
 
 # Get the root directory of the project
 BASE_DIR = Path(__file__).parent.parent
@@ -23,31 +38,21 @@ scraping_in_progress = False
 last_scrape_start_time = 0
 
 
-# Initialize Firebase
+# Initialize Firebase using environment variables only
 def initialize_firebase():
-    # Path to service account key
-    service_account_path = (
-        BASE_DIR / "backend" / "config" / "firebase_service_account.json"
-    )
-    print(service_account_path)
-    if not service_account_path.exists():
-        raise FileNotFoundError(
-            "Firebase service account key not found. "
-            "Please download it from Firebase Console and save it as "
-            "'firebase_service_account.json' in the config directory."
-        )
+    if not firebase_admin._apps:
+        # Get all config directly from environment variables
+         cred = credentials.Certificate({
+            "type": os.environ["FIREBASE_TYPE"],
+            "project_id": os.environ["FIREBASE_PROJECT_ID"],
+            "private_key_id": os.environ["FIREBASE_PRIVATE_KEY_ID"],
+            "private_key": os.environ["FIREBASE_PRIVATE_KEY"].replace('\\n', '\n'),
+            "client_email": os.environ["FIREBASE_CLIENT_EMAIL"],
+            "client_x509_cert_url": os.environ["FIREBASE_CLIENT_CERT_URL"]
+        })
+        firebase_admin.initialize_app(cred)
 
-    cred = credentials.Certificate(str(service_account_path))
-    firebase_admin.initialize_app(cred)
-
-
-try:
-    initialize_firebase()
-except Exception as e:
-    print(f"Failed to initialize Firebase: {str(e)}")
-    # Exit if Firebase is critical for your app
-    # sys.exit(1)
-
+initialize_firebase()
 
 # Custom exception for Firebase errors
 class FirebaseAuthError(Exception):
@@ -56,7 +61,6 @@ class FirebaseAuthError(Exception):
         self.code = code
 
 
-# Decorator to protect routes that require authentication
 def firebase_authenticated(f):
     @wraps(f)
     def decorated_function(*args, **kwargs):
@@ -73,7 +77,8 @@ def firebase_authenticated(f):
 
         try:
             token = auth_header.split(" ")[1]
-            decoded_token = auth.verify_id_token(token)
+            # Set check_revoked to True to check for revoked tokens
+            decoded_token = auth.verify_id_token(token, check_revoked=True)
             request.user = decoded_token
         except auth.ExpiredIdTokenError:
             raise FirebaseAuthError("Token has expired", 401)
@@ -81,13 +86,16 @@ def firebase_authenticated(f):
             raise FirebaseAuthError("Token has been revoked", 401)
         except auth.InvalidIdTokenError:
             raise FirebaseAuthError("Token is invalid", 401)
+        except auth.UserDisabledError:
+            raise FirebaseAuthError("User account is disabled", 401)
+        except auth.CertificateFetchError:
+            raise FirebaseAuthError("Error fetching public key certificates", 500)
         except Exception as e:
             raise FirebaseAuthError(f"Authentication failed: {str(e)}", 401)
 
         return f(*args, **kwargs)
 
     return decorated_function
-
 
 # Error handler for Firebase auth errors
 @app.errorhandler(FirebaseAuthError)
@@ -353,3 +361,4 @@ def get_products():
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5002, debug=True)
+    

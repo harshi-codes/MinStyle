@@ -1,0 +1,17 @@
+services:
+  - type: web
+    name: minstyle-backend
+    runtime: python
+    env: python
+    buildCommand: |
+      pip install -r requirements.txt
+      pip install gunicorn
+    startCommand: gunicorn --bind :$PORT app:app
+    envVars:
+      - key: PORT
+        value: 10000
+      - key: FIREBASE_PRIVATE_KEY
+        sync: false  # Secret
+      - key: FIREBASE_CLIENT_EMAIL
+        value: your-service-account@project.iam.gserviceaccount.com
+    healthCheckPath: /health

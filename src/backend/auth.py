@@ -6,22 +6,33 @@ from firebase_admin import auth, credentials
 from flask import jsonify, request
 
 
-# Initialize Firebase Admin SDK
 def initialize_firebase():
-    # Get the path to the service account key
-    service_account_path = os.path.join(
-        os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
-        "config",
-        "firebase_service_account.json",
-    )
-    if not os.path.exists(service_account_path):
-        raise FileNotFoundError(
-            "Firebase service account key not found. "
-            "Please download it from Firebase Console and save it as "
-            "'firebase_service_account.json' in the config directory.",
-        )
-
-    cred = credentials.Certificate(service_account_path)
+    # Try to get config from environment variables first
+    firebase_config = {
+        "type": os.getenv('FIREBASE_TYPE', 'service_account'),
+        "project_id": os.getenv('FIREBASE_PROJECT_ID'),
+        "private_key_id": os.getenv('FIREBASE_PRIVATE_KEY_ID'),
+        "private_key": os.getenv('FIREBASE_PRIVATE_KEY').replace('\\n', '\n'),
+        "client_email": os.getenv('FIREBASE_CLIENT_EMAIL'),
+        "client_id": os.getenv('FIREBASE_CLIENT_ID'),
+        "auth_uri": os.getenv('FIREBASE_AUTH_URI', 'https://accounts.google.com/o/oauth2/auth'),
+        "token_uri": os.getenv('FIREBASE_TOKEN_URI', 'https://oauth2.googleapis.com/token'),
+        "auth_provider_x509_cert_url": os.getenv('FIREBASE_AUTH_PROVIDER_CERT_URL', 'https://www.googleapis.com/oauth2/v1/certs'),
+        "client_x509_cert_url": os.getenv('FIREBASE_CLIENT_CERT_URL')
+    }
+    
+    # Check if all required environment variables are present
+    if all(firebase_config.values()):
+        cred = credentials.Certificate(firebase_config)
+    else:
+        # Fall back to file if environment variables aren't set
+        service_account_path = BASE_DIR / "backend" / "config" / "firebase_service_account.json"
+        if not service_account_path.exists():
+            raise FileNotFoundError(
+                "Firebase configuration not found in environment variables or file"
+            )
+        cred = credentials.Certificate(str(service_account_path))
+    
     firebase_admin.initialize_app(cred)
 
 
