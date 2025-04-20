@@ -19,8 +19,8 @@ app = Flask(__name__)
 CORS(app, resources={
     r"/api/*": {
         "origins": [
-            "https://your-vercel-app.vercel.app",
-            "http://localhost:3000"
+            "https://minstyle-seven.vercel.app/",
+            "http://localhost:5002"
         ]
     }
 })
