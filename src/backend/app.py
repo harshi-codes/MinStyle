@@ -42,7 +42,7 @@ last_scrape_start_time = 0
 def initialize_firebase():
 	if not firebase_admin._apps:
 		# Get all config directly from environment variables
-		 cred = credentials.Certificate({
+		cred = credentials.Certificate({
 			"type": os.environ["FIREBASE_TYPE"],
 			"project_id": os.environ["FIREBASE_PROJECT_ID"],
 			"private_key_id": os.environ["FIREBASE_PRIVATE_KEY_ID"],
@@ -52,7 +52,7 @@ def initialize_firebase():
 		})
 		firebase_admin.initialize_app(cred)
 
-initialize_firebase()
+
 
 # Custom exception for Firebase errors
 class FirebaseAuthError(Exception):
@@ -361,4 +361,5 @@ def get_products():
 
 if __name__ == "__main__":
 	app.run(host="0.0.0.0", port=5002, debug=True)
+	initialize_firebase()
 	
