@@ -4,7 +4,8 @@ services:
     runtime: python
     env: python
     buildCommand: |
-      pip install -r requirements.txt
+      python -m pip install --upgrade pip
+      pip install -r requirements.txt --use-deprecated=legacy-resolver
       pip install gunicorn
     startCommand: gunicorn --bind :$PORT app:app
     envVars:
