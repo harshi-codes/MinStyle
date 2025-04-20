@@ -5,53 +5,66 @@ import { componentTagger } from "lovable-tagger";
 
 export default defineConfig(({ mode }) => {
   return {
-    // Base path for production (empty string for root)
-    base: mode === 'production' ? '' : '/',
+    // Critical Vercel-specific base path
+    base: mode === 'production' ? '/' : '/',
     
     server: {
       host: "::",
       port: 8080,
       proxy: {
         "/api": {
-          target: "http://localhost:5000",
+          target: "http://localhost:5002",
           changeOrigin: true,
           secure: false,
+          rewrite: path => path.replace(/^\/api/, '')
         },
       },
     },
     
     plugins: [
-      react(), 
+      react(),
       mode === "development" && componentTagger()
     ].filter(Boolean),
     
-    // Remove envDir and process.env overrides - Vite handles this automatically
-    
     build: {
-      outDir: "dist",
+      outDir: "../dist", // Changed to output to root/dist
       emptyOutDir: true,
       sourcemap: mode === 'development',
       rollupOptions: {
         output: {
-          // Better chunking for production
+          entryFileNames: `[name].[hash].js`,
+          chunkFileNames: `[name].[hash].js`,
+          assetFileNames: `[name].[hash].[ext]`,
           manualChunks: {
             react: ['react', 'react-dom'],
             firebase: ['firebase/app', 'firebase/auth'],
-          },
-        },
-      },
+            vendor: ['react-router-dom', 'axios']
+          }
+        }
+      }
     },
     
     resolve: {
       alias: {
         "@": path.resolve(__dirname, "./src"),
-        // Remove Firebase aliases - let Vite handle node_modules
+        // Keep this simple - let Vite handle modules
       },
     },
     
-    // Optional: Improve development experience
     optimizeDeps: {
-      include: ['react', 'react-dom', '@firebase/app', '@firebase/auth'],
+      include: [
+        'react',
+        'react-dom',
+        '@firebase/app',
+        '@firebase/auth',
+        'react-router-dom'
+      ],
+      exclude: ['js-big-decimal']
     },
+    
+    // Add this for better error tracking
+    esbuild: {
+      drop: mode === 'production' ? ['console', 'debugger'] : []
+    }
   }
 });
