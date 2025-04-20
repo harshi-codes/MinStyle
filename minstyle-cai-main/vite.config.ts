@@ -55,6 +55,7 @@ export default defineConfig(({ mode }) => {
       include: [
         'react',
         'react-dom',
+        'axios',
         '@firebase/app',
         '@firebase/auth',
         'react-router-dom'
