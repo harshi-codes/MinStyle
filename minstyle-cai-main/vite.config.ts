@@ -1,16 +1,13 @@
-import { defineConfig, loadEnv } from "vite";
+import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react-swc";
 import path from "path";
 import { componentTagger } from "lovable-tagger";
 
-// https://vitejs.dev/config/
 export default defineConfig(({ mode }) => {
-  // Set the correct environment directory
-  const envDir = path.resolve(__dirname, '..'); // Goes up two levels from minstyle-cai-main/vite.config.ts
-  // Load environment variables
-  const env = loadEnv(mode, envDir, 'VITE_');
-  
   return {
+    // Base path for production (empty string for root)
+    base: mode === 'production' ? '' : '/',
+    
     server: {
       host: "::",
       port: 8080,
@@ -22,28 +19,39 @@ export default defineConfig(({ mode }) => {
         },
       },
     },
-    plugins: [react(), mode === "development" && componentTagger()].filter(
-      Boolean,
-    ),
-    envDir, // This tells Vite where to look for .env files
-    define: {
-      // This exposes the environment variables to your application
-      "process.env": {
-        ...env,
-        VITE_FIREBASE_API_KEY: JSON.stringify(env.VITE_FIREBASE_API_KEY),
-        VITE_FIREBASE_AUTH_DOMAIN: JSON.stringify(env.VITE_FIREBASE_AUTH_DOMAIN),
-        VITE_FIREBASE_PROJECT_ID: JSON.stringify(env.VITE_FIREBASE_PROJECT_ID),
-        VITE_FIREBASE_STORAGE_BUCKET: JSON.stringify(env.VITE_FIREBASE_STORAGE_BUCKET),
-        VITE_FIREBASE_MESSAGING_SENDER_ID: JSON.stringify(env.VITE_FIREBASE_MESSAGING_SENDER_ID),
-        VITE_FIREBASE_APP_ID: JSON.stringify(env.VITE_FIREBASE_APP_ID),
+    
+    plugins: [
+      react(), 
+      mode === "development" && componentTagger()
+    ].filter(Boolean),
+    
+    // Remove envDir and process.env overrides - Vite handles this automatically
+    
+    build: {
+      outDir: "dist",
+      emptyOutDir: true,
+      sourcemap: mode === 'development',
+      rollupOptions: {
+        output: {
+          // Better chunking for production
+          manualChunks: {
+            react: ['react', 'react-dom'],
+            firebase: ['firebase/app', 'firebase/auth'],
+          },
+        },
       },
     },
+    
     resolve: {
       alias: {
         "@": path.resolve(__dirname, "./src"),
-        "firebase/app": "@firebase/app",
-        "firebase/auth": "@firebase/auth",
+        // Remove Firebase aliases - let Vite handle node_modules
       },
+    },
+    
+    // Optional: Improve development experience
+    optimizeDeps: {
+      include: ['react', 'react-dom', '@firebase/app', '@firebase/auth'],
     },
   }
 });
