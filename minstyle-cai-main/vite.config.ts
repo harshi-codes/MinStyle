@@ -27,10 +27,17 @@ export default defineConfig(({ mode }) => {
     ].filter(Boolean),
     
     build: {
-      outDir: "../dist", // Changed to output to root/dist
+      outDir: "dist", // Changed to output to root/dist
       emptyOutDir: true,
       sourcemap: mode === 'development',
       rollupOptions: {
+        external: [
+          // Explicitly list Firebase modules to externalize
+          'firebase',
+          'firebase/app',
+          'firebase/auth',
+          'firebase/firestore' // Add if using Firestore
+        ]
         output: {
           entryFileNames: `[name].[hash].js`,
           chunkFileNames: `[name].[hash].js`,
@@ -46,9 +53,11 @@ export default defineConfig(({ mode }) => {
     
     resolve: {
       alias: {
-        "@": path.resolve(__dirname, "./src"),
-        // Keep this simple - let Vite handle modules
-      },
+        // Add these aliases for Firebase
+        "firebase/app": "firebase/app/dist/index.esm.js",
+        "firebase/auth": "firebase/auth/dist/index.esm.js",
+        "firebase/firestore": "firebase/firestore/dist/index.esm.js" // Add if using Firestore
+      }
     },
     
     optimizeDeps: {
