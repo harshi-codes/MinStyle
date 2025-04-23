@@ -2,7 +2,6 @@
 import React, { createContext, useContext, useEffect, useState } from "react";
 import { User, onAuthStateChanged } from "firebase/auth";
 import { auth } from "@/services/auth";
-import { getAuth } from "firebase/auth/dist/index.esm.js";
 
 interface AuthContextType {
   user: User | null;

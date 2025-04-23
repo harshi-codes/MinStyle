@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import Navbar from "@/components/Navbar";
 import Hero from "@/components/Hero";
 import ProductRecommender from "@/components/ProductRecommender";
@@ -17,32 +17,6 @@ import {
 import { useToast } from "@/components/ui/use-toast";
 import { useAuth } from "@/providers/AuthProvider";
 import { auth } from "@/services/auth";
-import { API_BASE_URL } from "@/services/auth";
-
-// Helper functions
-const validateSearchParams = (params: {
-  style: string;
-  color: string;
-  vibe: string;
-  gender: string;
-  event: string;
-}) => {
-  return (
-    params.style.trim() !== "" &&
-    params.color.trim() !== "" &&
-    params.vibe.trim() !== "" &&
-    params.gender.trim() !== "" &&
-    params.event.trim() !== ""
-  );
-};
-
-const parseErrorResponse = async (response: Response) => {
-  try {
-    return await response.json();
-  } catch {
-    return { error: "Failed to parse error response" };
-  }
-};
 
 const Index = () => {
   const [showChatbot, setShowChatbot] = useState(false);
@@ -53,7 +27,6 @@ const Index = () => {
     gender: "",
     event: "",
   });
-  const [isTokenRefreshing, setIsTokenRefreshing] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
   const { user } = useAuth();
@@ -74,62 +47,29 @@ const Index = () => {
     }));
   };
 
-  const navigateToLogin = () => {
-    navigate("/login");
-    toast({
-      title: "Authentication Required",
-      description: "Please log in to search for products",
-      variant: "destructive",
-    });
-  };
-
-  const showSuccessToast = () => {
-    toast({
-      title: "Search Started",
-      description: "We're finding the perfect fashion items for you!",
-    });
-  };
-
-  const navigateAfterDelay = () => {
-    setTimeout(() => {
-      navigate("/products");
-    }, 1500);
-  };
-
-  const handleSearchError = (error: unknown) => {
-    console.error("Search error:", error);
-    
-    let errorMessage = "Couldn't start the search. Please try again.";
-    let shouldRedirectToLogin = false;
-
-    if (error instanceof Error) {
-      if (
-        error.message.includes("auth/id-token-expired") || 
-        error.message.includes("auth/invalid-id-token") ||
-        error.message.includes("401")
-      ) {
-        errorMessage = "Session expired. Please log in again.";
-        shouldRedirectToLogin = true;
-      } else {
-        errorMessage = error.message;
-      }
-    }
-
-    toast({
-      title: "Search Failed",
-      description: errorMessage,
-      variant: "destructive",
-    });
-
-    if (shouldRedirectToLogin) {
-      navigateToLogin();
-    }
-  };
-
   const handleShopNow = async (e: React.MouseEvent) => {
     e.preventDefault();
 
-    if (!validateSearchParams(searchParams)) {
+    // Check if user is authenticated
+    if (!user) {
+      toast({
+        title: "Authentication Required",
+        description: "Please log in to search for products",
+        variant: "destructive",
+      });
+      // Redirect to login page
+      navigate("/login");
+      return;
+    }
+
+    // Validate all fields are filled
+    if (
+      !searchParams.style ||
+      !searchParams.color ||
+      !searchParams.vibe ||
+      !searchParams.gender ||
+      !searchParams.event
+    ) {
       toast({
         title: "Missing Information",
         description: "Please fill all the fields to continue",
@@ -141,41 +81,49 @@ const Index = () => {
     setIsLoading(true);
 
     try {
-      if (!user) {
-        navigateToLogin();
-        return;
-      }
+      // Get the current user's ID token for authentication
+      const token = await user.getIdToken();
 
-      setIsTokenRefreshing(true);
-      const token = await user.getIdToken(true);
-      setIsTokenRefreshing(false);
-      
-      const response = await fetch(`${API_BASE_URL}/api/search`, {
+      const response = await fetch("http://localhost:5002/api/search", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          "Authorization": `Bearer ${token}`,
+          Authorization: `Bearer ${token}`, // Properly formatted Bearer token
         },
         body: JSON.stringify(searchParams),
       });
 
+      const responseData = await response.json();
+
       if (!response.ok) {
-        const errorData = await parseErrorResponse(response);
-        throw new Error(errorData.error || "Failed to start search");
+        throw new Error(responseData.error || "Failed to start search");
       }
 
-      showSuccessToast();
-      navigateAfterDelay();
+      toast({
+        title: "Search Started",
+        description: "We're finding the perfect fashion items for you!",
+      });
 
+      // Redirect to products page after a short delay
+      setTimeout(() => {
+        navigate("/products");
+      }, 1500);
     } catch (error) {
-      handleSearchError(error);
+      console.error("Search error:", error);
+      toast({
+        title: "Search Failed",
+        description:
+          error instanceof Error
+            ? error.message
+            : "Couldn't start the search. Please try again.",
+        variant: "destructive",
+      });
     } finally {
       setIsLoading(false);
-      setIsTokenRefreshing(false);
     }
   };
 
-   return (
+  return (
     <div className="min-h-screen bg-minBlack text-white overflow-x-hidden">
       <Navbar />
 
