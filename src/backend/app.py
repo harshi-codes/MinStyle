@@ -13,7 +13,7 @@ from flask import Flask, jsonify, request
 from flask_cors import CORS
 
 app = Flask(__name__)
-CORS(app, origins=["https://your-app.netlify.app", "http://localhost:8080"])
+CORS(app, origins=["https://minstyle.netlify.app", "http://localhost:8080"])
 
 # Get the root directory of the project
 BASE_DIR = Path(__file__).parent.parent
