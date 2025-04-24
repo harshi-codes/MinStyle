@@ -13,7 +13,15 @@ from flask import Flask, jsonify, request
 from flask_cors import CORS
 
 app = Flask(__name__)
-CORS(app, origins=["https://minstyle.netlify.app", "http://localhost:8080"])
+CORS(app, resources={
+    r"/api/*": {
+        "origins": ["https://minstyle.netlify.app", "http://localhost:8080"],
+        "methods": ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+        "allow_headers": ["Authorization", "Content-Type"],
+        "supports_credentials": True
+    }
+})
+
 
 # Get the root directory of the project
 BASE_DIR = Path(__file__).parent.parent
@@ -230,9 +238,12 @@ def request_password_reset():
         return jsonify({"error": f"Failed to generate reset link: {str(e)}"}), 500
 
 
-@app.route("/api/search", methods=["POST"])
+@app.route("/api/search", methods=["POST", "OPTIONS"])
 @firebase_authenticated
 def handle_search():
+    if request.method == "OPTIONS":
+        return jsonify({"status": "ok"}), 200
+        
     global scraping_in_progress, last_scrape_start_time
     data = request.get_json()
 
