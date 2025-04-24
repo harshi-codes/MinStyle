@@ -10,6 +10,9 @@ export default defineConfig({
     },
   },
   build: {
+    chunkSizeWarningLimit: 1000,
+    outDir: "dist",
+    emptyOutDir: true,
     commonjsOptions: {
       include: [/firebase/, /node_modules/],
       transformMixedEsModules: true
