@@ -1,7 +1,6 @@
 {
   "dependencies": {
     "@firebase/app": "^0.11.4",
-    "@firebase/auth": "^1.10.0",
-    "firebase": "^11.6.0"
+    "firebase": "^9.22.2"
   }
 }
