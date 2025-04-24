@@ -26,8 +26,6 @@ export default defineConfig(({ mode }) => ({
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src"),
-      "firebase/app": "@firebase/app",
-      "firebase/auth": "@firebase/auth",
     },
   },
 }));
