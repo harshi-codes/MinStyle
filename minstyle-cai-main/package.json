@@ -6,11 +6,13 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
-    "prebuild": "npm install vite @vitejs/plugin-react --no-save",
+    "prebuild": "npm install vite @vitejs/plugin-react-swc --no-save",
     "preview": "vite preview",
-    "postinstall": "npm install vite typescript @vitejs/plugin-react --no-save"
+    "postinstall": "npm install vite typescript @vitejs/plugin-react-swc --no-save"
   },
   "dependencies": {
+    "vite": "^5.4.1",
+    "@vitejs/plugin-react-swc": "^3.5.0",
     "@hookform/resolvers": "^3.9.0",
     "@radix-ui/react-accordion": "^1.2.0",
     "@radix-ui/react-alert-dialog": "^1.1.1",
