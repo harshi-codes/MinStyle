@@ -15,7 +15,7 @@ export default defineConfig(({ mode }) => ({
         secure: false,
       },
     },
-  },
+  } : undefined,
   plugins: [react(), mode === "development" && componentTagger()].filter(
     Boolean,
   ),

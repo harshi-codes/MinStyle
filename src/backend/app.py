@@ -8,12 +8,12 @@ from functools import wraps
 from pathlib import Path
 
 import firebase_admin
-from firebase_admin import auth, credentials
+from firebase_admin import auth, credentials, initialize_app
 from flask import Flask, jsonify, request
 from flask_cors import CORS
 
 app = Flask(__name__)
-CORS(app)  # Enable CORS for all routes
+CORS(app, origins=["https://your-app.netlify.app", "http://localhost:8080"])
 
 # Get the root directory of the project
 BASE_DIR = Path(__file__).parent.parent
@@ -22,24 +22,28 @@ BASE_DIR = Path(__file__).parent.parent
 scraping_in_progress = False
 last_scrape_start_time = 0
 
-
-# Initialize Firebase
 def initialize_firebase():
-    # Path to service account key
-    service_account_path = (
-        BASE_DIR / "backend" / "config" / "firebase_service_account.json"
-    )
-    print(service_account_path)
-    if not service_account_path.exists():
-        raise FileNotFoundError(
-            "Firebase service account key not found. "
-            "Please download it from Firebase Console and save it as "
-            "'firebase_service_account.json' in the config directory."
-        )
-
-    cred = credentials.Certificate(str(service_account_path))
-    firebase_admin.initialize_app(cred)
-
+    # Get Firebase config from environment variables
+    firebase_config = {
+        "type": os.environ.get("FIREBASE_TYPE"),
+        "project_id": os.environ.get("FIREBASE_PROJECT_ID"),
+        "private_key_id": os.environ.get("FIREBASE_PRIVATE_KEY_ID"),
+        "private_key": os.environ.get("FIREBASE_PRIVATE_KEY").replace('\\n', '\n'),
+        "client_email": os.environ.get("FIREBASE_CLIENT_EMAIL"),
+        "client_id": os.environ.get("FIREBASE_CLIENT_ID"),
+        "auth_uri": os.environ.get("FIREBASE_AUTH_URI"),
+        "token_uri": os.environ.get("FIREBASE_TOKEN_URI"),
+        "auth_provider_x509_cert_url": os.environ.get("FIREBASE_AUTH_PROVIDER_CERT_URL"),
+        "client_x509_cert_url": os.environ.get("FIREBASE_CLIENT_CERT_URL")
+    }
+    
+    # Validate that we have all required config
+    if not all(firebase_config.values()):
+        raise ValueError("Missing one or more required Firebase environment variables")
+    
+    # Create credentials from the config dictionary
+    cred = credentials.Certificate(firebase_config)
+    initialize_app(cred)
 
 try:
     initialize_firebase()

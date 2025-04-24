@@ -17,6 +17,7 @@ import { Slider } from "@/components/ui/slider";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/components/ui/use-toast";
+import { API_URL } from "@/config/api";
 
 // Define product type
 interface Product {
@@ -81,7 +82,7 @@ const Products = () => {
 
         const pollInterval = setInterval(async () => {
           try {
-            const response = await fetch("http://localhost:5002/api/products", {
+            const response = await fetch(`${API_URL}/products`, {
               headers: {
                 Authorization: `Bearer ${token}`,
               },

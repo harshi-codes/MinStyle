@@ -17,6 +17,7 @@ import {
 import { useToast } from "@/components/ui/use-toast";
 import { useAuth } from "@/providers/AuthProvider";
 import { auth } from "@/services/auth";
+import { API_URL } from "@/config/api";
 
 const Index = () => {
   const [showChatbot, setShowChatbot] = useState(false);
@@ -84,7 +85,7 @@ const Index = () => {
       // Get the current user's ID token for authentication
       const token = await user.getIdToken();
 
-      const response = await fetch("http://localhost:5002/api/search", {
+      const response = await fetch(`${API_URL}/search`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -97,7 +98,7 @@ const Index = () => {
 
       if (!response.ok) {
         throw new Error(responseData.error || "Failed to start search");
-      }
+      }Y
 
       toast({
         title: "Search Started",
