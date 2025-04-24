@@ -1,4 +1,10 @@
 [build]
   command = "npm install && npm run build"
   publish = "dist"
-  environment = { NODE_VERSION = "18.16.0", NODE_ENV = "production" }
+
+[build.environment]
+  NODE_VERSION = "18.18.0"  # Updated to match package requirements
+  NODE_ENV = "production"
+
+[context.production.environment]
+  # Production-specific environment variables here
