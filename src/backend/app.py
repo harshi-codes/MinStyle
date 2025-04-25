@@ -14,16 +14,24 @@ from flask_cors import CORS
 
 app = Flask(__name__)
 
-# Configure CORS with more specific settings
-#CORS(app, resources={
-#    r"/api/*": {
-#        "origins": ["https://minstyle.netlify.app", "http://localhost:8080"],
-#        "methods": ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-#        "allow_headers": ["Authorization", "Content-Type"],
-#        "supports_credentials": True,
-#        "max_age": 86400  # Cache preflight response for 24 hours
-#    }
-#})
+CORS(app, resources={
+    r"/api/*": {
+        "origins": ["https://minstyle.netlify.app", "http://localhost:8080"],
+        "methods": ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+        "allow_headers": ["Authorization", "Content-Type"],
+        "supports_credentials": True,
+        "max_age": 86400
+    }
+})
+
+# Add this after CORS initialization to handle OPTIONS requests globally
+@app.after_request
+def after_request(response):
+    response.headers.add('Access-Control-Allow-Origin', 'https://minstyle.netlify.app')
+    response.headers.add('Access-Control-Allow-Headers', 'Content-Type,Authorization')
+    response.headers.add('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE,OPTIONS')
+    response.headers.add('Access-Control-Allow-Credentials', 'true')
+    return response
 
 # Get the root directory of the project
 BASE_DIR = Path(__file__).parent.parent
@@ -248,8 +256,10 @@ def handle_search():
         response = jsonify({"status": "ok"})
         response.headers.add("Access-Control-Allow-Origin", "https://minstyle.netlify.app")
         response.headers.add("Access-Control-Allow-Headers", "Authorization, Content-Type")
+        response.headers.add("Access-Control-Allow-Methods", "POST, OPTIONS")
         return response, 200
 
+    # Rest of your existing search implementation
     global scraping_in_progress, last_scrape_start_time
     data = request.get_json()
 

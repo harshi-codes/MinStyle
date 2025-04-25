@@ -89,9 +89,10 @@ const Index = () => {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`, // Properly formatted Bearer token
+          Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify(searchParams),
+        // credentials: 'include' // Only include if you're using cookies/sessions
       });
 
       const responseData = await response.json();
