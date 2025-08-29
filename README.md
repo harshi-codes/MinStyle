@@ -63,10 +63,7 @@ This project was developed by the team "We Can't Code" during the Hack to the Fu
 
 - [harshi-codes](https://github.com/harshi-codes)
 - [slyeet03](https://github.com/slyeet03)
-- [dhruv](https://www.linkedin.com/in/dhruv-sharda-8a6231239/)
-- [rudracodess](https://www.linkedin.com/in/rudracodes)
-- [saish]()
-- [maanya](https://www.linkedin.com/in/maanya-jajodia-3905a7336/)
+
 
 ## 🏆 Acknowledgment
 
